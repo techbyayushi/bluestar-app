@@ -3,7 +3,20 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabaseConfigError = !isSupabaseConfigured
+  ? 'Supabase environment variables are missing. Please configure: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY'
+  : null;
+
+// When env vars are missing we still create a client with placeholder values
+// so that importing this module does not throw at load time (which would
+// produce a blank white screen). The app gates rendering on
+// `isSupabaseConfigured` and shows a configuration error screen instead.
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+);
 
 export type UserRole = 'admin' | 'ecell' | 'auditor';
 

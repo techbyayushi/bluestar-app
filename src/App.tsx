@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { ThemeProvider } from './hooks/useTheme';
 import { Layout } from './components/Layout';
+import { isSupabaseConfigured, supabaseConfigError } from './lib/supabase';
+import { ConfigErrorScreen } from './components/ConfigErrorScreen';
 import { Login } from './pages/Login';
 import { ForcePasswordChange } from './pages/ForcePasswordChange';
 import { Dashboard } from './pages/Dashboard';
@@ -71,6 +73,10 @@ function AppRoutes() {
 }
 
 function App() {
+  if (!isSupabaseConfigured) {
+    return <ConfigErrorScreen message={supabaseConfigError || 'Supabase environment variables are missing.'} />;
+  }
+
   return (
     <ThemeProvider>
       <AuthProvider>
