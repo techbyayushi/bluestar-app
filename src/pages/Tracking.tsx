@@ -42,6 +42,7 @@ export function Tracking() {
   const [formData, setFormData] = useState({
     pcb_name: '',
     part_code: '',
+    ffa_claim_ifa_sno: '',
     quantity: 1,
     months: 1,
     machine: '',
@@ -49,6 +50,8 @@ export function Tracking() {
     field_line_observation: '',
     e_cell_observation: '',
     status: 'Under Analysis' as InspectionStatus,
+    report_status: 'Pending' as string,
+    report_name: '',
     test_conducted_by: user?.full_name || '',
     final_handover_person: '',
     final_handover_location: '',
@@ -263,6 +266,7 @@ export function Tracking() {
     setFormData({
       pcb_name: '',
       part_code: '',
+      ffa_claim_ifa_sno: '',
       quantity: 1,
       months: 1,
       machine: '',
@@ -270,6 +274,8 @@ export function Tracking() {
       field_line_observation: '',
       e_cell_observation: '',
       status: 'Under Analysis',
+      report_status: 'Pending',
+      report_name: '',
       test_conducted_by: user?.full_name || '',
       final_handover_person: '',
       final_handover_location: '',
@@ -291,18 +297,21 @@ export function Tracking() {
       const payload = {
         pcb_name: formData.pcb_name,
         part_code: formData.part_code || null,
+        ffa_claim_ifa_sno: formData.ffa_claim_ifa_sno || null,
         price,
         quantity: formData.quantity,
         final_price: finalPrice,
         months: formData.months,
-        machine: formData.machine,
-        drive_name: formData.drive_name,
-        field_line_observation: formData.field_line_observation,
-        e_cell_observation: formData.e_cell_observation,
+        machine: formData.machine || null,
+        drive_name: formData.drive_name || null,
+        field_line_observation: formData.field_line_observation || null,
+        e_cell_observation: formData.e_cell_observation || null,
         status: formData.status,
-        test_conducted_by: formData.test_conducted_by,
-        final_handover_person: formData.final_handover_person,
-        final_handover_location: formData.final_handover_location,
+        report_status: formData.report_status || 'Pending',
+        report_name: formData.report_name || null,
+        test_conducted_by: formData.test_conducted_by || null,
+        final_handover_person: formData.final_handover_person || null,
+        final_handover_location: formData.final_handover_location || null,
         handover_date: formData.handover_date || null,
         created_by: user?.id,
       };
@@ -331,6 +340,7 @@ export function Tracking() {
     setFormData({
       pcb_name: record.pcb_name,
       part_code: record.part_code || '',
+      ffa_claim_ifa_sno: record.ffa_claim_ifa_sno || '',
       quantity: record.quantity,
       months: record.months || 1,
       machine: record.machine || '',
@@ -338,6 +348,8 @@ export function Tracking() {
       field_line_observation: record.field_line_observation || '',
       e_cell_observation: record.e_cell_observation || '',
       status: record.status || 'Under Analysis',
+      report_status: record.report_status || 'Pending',
+      report_name: record.report_name || '',
       test_conducted_by: record.test_conducted_by || user?.full_name || '',
       final_handover_person: record.final_handover_person || '',
       final_handover_location: record.final_handover_location || '',
@@ -455,6 +467,10 @@ export function Tracking() {
               </select>
             </div>
             <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">FFA Claim Number / IFA Serial Number</label>
+              <input type="text" value={formData.ffa_claim_ifa_sno} onChange={e => setFormData({ ...formData, ffa_claim_ifa_sno: e.target.value })} className={inputClass} />
+            </div>
+            <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Quantity</label>
               <input type="number" min="1" value={formData.quantity} onChange={e => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })} className={inputClass} />
             </div>
@@ -477,6 +493,19 @@ export function Tracking() {
                 <option value="OK">OK</option>
                 <option value="Not OK">Not OK</option>
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Report Status</label>
+              <select value={formData.report_status} onChange={e => setFormData({ ...formData, report_status: e.target.value })} className={inputClass}>
+                <option value="Pending">Pending</option>
+                <option value="Approval">Approval</option>
+                <option value="In Process">In Process</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">RCA Report Name</label>
+              <input type="text" value={formData.report_name} onChange={e => setFormData({ ...formData, report_name: e.target.value })} className={inputClass} />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Test Conducted By</label>
@@ -685,7 +714,7 @@ export function Tracking() {
                   <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <DetailItem label="PCB Name" value={selectedRecord.pcb_name} />
                     <DetailItem label="Part Code" value={selectedRecord.part_code || '-'} />
-                    <DetailItem label="FFA Claim Number / IFA Serial Number" value={selectedRecord.final_handover_person || '-'} />
+                    <DetailItem label="FFA Claim Number / IFA Serial Number" value={selectedRecord.ffa_claim_ifa_sno || '-'} />
                   </div>
                 </div>
 
@@ -709,7 +738,7 @@ export function Tracking() {
                     <DetailItem label="Status" value={selectedRecord.status || '-'} isBadge />
                     <DetailItem label="Test Conducted By" value={selectedRecord.test_conducted_by || '-'} />
                     <DetailItem label="Report Status" value={selectedRecord.report_status || 'Pending'} isBadge />
-                    <DetailItem label="RCA Report Name" value={selectedRecord.pcb_name} />
+                    <DetailItem label="RCA Report Name" value={selectedRecord.report_name || '-'} />
                     <DetailItem label="Handover Date" value={selectedRecord.handover_date ? format(new Date(selectedRecord.handover_date), 'MMM d, yyyy') : '-'} />
                     <DetailItem label="Final Handover Person" value={selectedRecord.final_handover_person || '-'} />
                     <DetailItem label="Final Handover Location" value={selectedRecord.final_handover_location || '-'} />
